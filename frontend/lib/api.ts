@@ -291,6 +291,7 @@ export async function fetchNbaPrediction(home: string, away: string, token: stri
 /* ── Jugadores (tarjeta de goleador) ──────────────────────────────────────── */
 
 export interface Player {
+  id: number;
   name: string;
   national_team: string | null;
   current_club: string | null;
@@ -313,6 +314,89 @@ export async function fetchTopScorers(limit = 20): Promise<Player[]> {
 export async function searchPlayers(q: string): Promise<Player[]> {
   const { data } = await api.get(`/players/search?q=${encodeURIComponent(q)}`);
   return data.players ?? [];
+}
+
+/* ── Tarjeta de jugador (perfil completo) ─────────────────────────────────── */
+
+export interface PlayerGoal {
+  date: string | null;
+  tournament: string | null;
+  category: string | null;
+  team: string | null;
+  opponent: string | null;
+  home_team: string | null;
+  away_team: string | null;
+  score: string | null;
+  minute: number | null;
+  penalty: boolean;
+  own_goal: boolean;
+}
+
+export interface PlayerMatchStat {
+  date: string | null;
+  tournament: string | null;
+  home_team: string | null;
+  away_team: string | null;
+  score: string | null;
+  position: string | null;
+  minutes: number | null;
+  goals: number;
+  assists: number;
+  shots: number;
+  shots_on_target: number;
+  xg: number | null;
+  passes: number;
+  key_passes: number;
+  fouls: number;
+}
+
+export interface TeamSpell {
+  team: string;
+  start: string | null;
+  end: string | null;
+  national: boolean;
+}
+
+export interface PlayerProfile {
+  player: {
+    id: number;
+    name: string;
+    birthdate: string | null;
+    age: number | null;
+    nationality: string | null;
+    position: string | null;
+    national_team: string | null;
+    current_club: string | null;
+    wikidata_id: string | null;
+  };
+  career: {
+    goals: number | null;
+    penalties: number;
+    own_goals: number;
+    matches_scored: number | null;
+    first_year: number | null;
+    last_year: number | null;
+  };
+  club_history: TeamSpell[];
+  national_history: TeamSpell[];
+  goals_breakdown: {
+    by_category: Record<string, number>;
+    by_year: { year: string; goals: number }[];
+  };
+  recent_goals: PlayerGoal[];
+  match_stats_summary: {
+    matches?: number;
+    totals?: Record<string, number | null>;
+    per_match?: Record<string, number>;
+    position?: string | null;
+  };
+  recent_matches: PlayerMatchStat[];
+}
+
+/** Tarjeta completa de un jugador (ficha, goles de carrera y stats por partido). */
+export async function fetchPlayerProfile(id: number): Promise<PlayerProfile> {
+  const { data } = await api.get(`/players/${id}`);
+  return data;
 }
 
 export async function fetchPrediction(match: Match, league: string, token?: string | null): Promise<Prediction> {

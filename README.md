@@ -128,6 +128,7 @@ redondeadas y etiquetas de sección en mayúsculas monoespaciadas). Los tokens v
 | `/ligas` | Ligas cubiertas + conteo de próximos partidos | `/leagues` + `/upcoming` |
 | `/partidos` | Fixtures con filtros por fecha | `/upcoming` |
 | `/jugadores` | Ranking de goleadores + buscador | `/players/top`, `/players/search` |
+| `/jugadores/[id]` | **Tarjeta de jugador**: ficha (edad, posición, club), goles por competición, rendimiento por partido, últimos goles y trayectoria de clubes | `/players/{id}` |
 | `/track-record` | Precisión verificable en vivo (ítem "Estadísticas") | `/predictions/stats` + `/predictions/market-stats` |
 
 `/equipos`, `/comunidad` y `/predicciones` son placeholders ("próximamente"): exponer
@@ -383,6 +384,7 @@ La documentación interactiva completa (Swagger UI) está en `/docs`.
 | `GET` | `/teams/search?q={nombre}` | Busca equipos por nombre (índice local) |
 | `GET` | `/players/top?limit={n}` | **Público** — máximos goleadores (goles internacionales de carrera) desde la base propia `scouting_players` |
 | `GET` | `/players/search?q={nombre}` | **Público** — busca jugadores por nombre en la base propia |
+| `GET` | `/players/{player_id}` | **Público** — tarjeta completa de un jugador: ficha Wikidata, goles internacionales con fecha/rival/minuto, reparto por competición y stats por partido (StatsBomb). 404 si no existe |
 
 ### Predicciones
 
@@ -812,7 +814,8 @@ sports-predictor/
 │   ├── api_sports.py      # Cliente API-Sports (100 req/día, caché 1h)
 │   ├── odds_api.py        # Cliente The Odds API (cuotas reales + cálculo de EV)
 │   ├── weather_api.py     # Cliente Open-Meteo (geocodificación + pronóstico)
-│   ├── supabase_client.py # CRUD de predicciones + estadísticas + goleadores (get_top_scorers/search_players)
+│   ├── supabase_client.py # CRUD de predicciones + estadísticas + auth
+│   ├── players_db.py      # Base de jugadores: goleadores, búsqueda y tarjeta (get_player_profile)
 │   ├── tests/             # Pytest (test_odds_api.py, test_players.py, …)
 │   ├── result_checker.py  # Busca y guarda resultados reales cada hora
 │   ├── mock_data.py       # Datos de fallback cuando las APIs fallan

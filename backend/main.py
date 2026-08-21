@@ -8,6 +8,7 @@ import football_api as fapi
 import api_sports as asports
 import weather_api as wapi
 import supabase_client as sbc
+import players_db
 import odds_api
 import nba_predictor
 import ensemble
@@ -169,13 +170,22 @@ def get_leagues():
 @app.get("/players/top")
 def get_top_players(limit: int = 20):
     """Máximos goleadores (goles internacionales de carrera) desde la base propia."""
-    return {"players": sbc.get_top_scorers(limit)}
+    return {"players": players_db.get_top_scorers(limit)}
 
 
 @app.get("/players/search")
 def search_players_endpoint(q: str = ""):
     """Busca jugadores por nombre en la base propia de scouting."""
-    return {"players": sbc.search_players(q)}
+    return {"players": players_db.search_players(q)}
+
+
+@app.get("/players/{player_id}")
+def get_player(player_id: int):
+    """Tarjeta completa de un jugador: ficha, goles de carrera y stats por partido."""
+    profile = players_db.get_player_profile(player_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Jugador no encontrado")
+    return profile
 
 
 @app.get("/leagues/{league}/matches")

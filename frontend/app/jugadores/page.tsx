@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Search, X } from "lucide-react";
 import { fetchTopScorers, searchPlayers, Player } from "@/lib/api";
 
@@ -12,7 +13,10 @@ function initials(name: string): string {
 
 function PlayerRow({ player, rank }: { player: Player; rank?: number }) {
   return (
-    <div className="flex items-center gap-3 sm:gap-4 rounded-2xl px-2 sm:px-3 py-3 hover:bg-white/[0.03] transition-colors">
+    <Link
+      href={`/jugadores/${player.id}`}
+      className="flex items-center gap-3 sm:gap-4 rounded-2xl px-2 sm:px-3 py-3 hover:bg-white/[0.03] transition-colors"
+    >
       {rank != null && (
         <span className="w-8 text-center font-mono text-sm text-muted-2 shrink-0">
           #{rank}
@@ -37,7 +41,7 @@ function PlayerRow({ player, rank }: { player: Player; rank?: number }) {
           {player.first_year}–{player.last_year}
         </p>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -83,7 +87,7 @@ export default function JugadoresPage() {
         </h1>
         <p className="text-sm text-muted-2 mt-1 max-w-2xl">
           Goles internacionales de carrera de miles de jugadores, desde la base
-          de datos propia.
+          de datos propia. Toca un jugador para ver su tarjeta completa.
         </p>
       </div>
 
@@ -122,7 +126,7 @@ export default function JugadoresPage() {
           ) : (
             <div className="divide-y divide-border">
               {results.map((p, i) => (
-                <PlayerRow key={`${p.name}-${i}`} player={p} />
+                <PlayerRow key={p.id ?? `${p.name}-${i}`} player={p} />
               ))}
             </div>
           )}
@@ -140,7 +144,7 @@ export default function JugadoresPage() {
           ) : (
             <div className="divide-y divide-border">
               {top.map((p, i) => (
-                <PlayerRow key={`${p.name}-${i}`} player={p} rank={i + 1} />
+                <PlayerRow key={p.id ?? `${p.name}-${i}`} player={p} rank={i + 1} />
               ))}
             </div>
           )}

@@ -178,7 +178,19 @@ Registro de tareas del proyecto Predictor Deportivo.
     Enriquecidos 944 jugadores prioritarios (los que tienen stats de partido); 78
     ambiguos, 478 sin ficha. Resumible/ampliable en tandas. Verificado: tarjeta
     completa de James Rodriguez (35 años, Minnesota United, 16 equipos, 23 goles, 7 asist).
-  - [ ] App: endpoint + pagina de "tarjeta de jugador". Ampliar perfil a mas jugadores.
+  - [x] App: endpoint + pagina de "tarjeta de jugador" (2026-08-21). Backend:
+    `players_db.py` (modulo nuevo; se saco de `supabase_client.py` que llegaba al
+    limite de 500 lineas) con `get_player_profile()` -> ficha Wikidata + linea de
+    tiempo de goles reales (cruce por `detail->>scorer` en scouting_match_events,
+    con fecha/rival/minuto/penal) + stats por partido de StatsBomb agregadas
+    (totales, promedio por partido, posicion habitual) + trayectoria de clubes.
+    Endpoint `GET /players/{player_id}` (404 si no existe). Frontend:
+    `/jugadores/[id]` con la tarjeta (numeros de carrera, barras de goles por
+    competicion, tabla de ultimos partidos, ultimos goles, trayectoria); las filas
+    del ranking y del buscador ahora enlazan a la tarjeta (el listado expone `id`).
+    Tests: 12 en `test_players.py` (helpers, perfil con cliente falso, endpoint
+    200/404). Suite completa: 53 pasan. Build de Next 16 OK.
+  - [ ] Ampliar el perfil Wikidata a mas jugadores (hoy 944 de 16.261).
 - [ ] **Ligas colombianas / BetPlay**: seleccion Colombia SI (641 partidos); Liga BetPlay
   de clubes NO (football-data.co.uk no cubre Colombia). Traer de API-Sports (league 239).
 - [ ] **Basquetbol**: base de datos propia estilo scouting_* (partidos, stats, jugadores).
@@ -208,6 +220,13 @@ Registro de tareas del proyecto Predictor Deportivo.
   del modelo (de todos los usuarios). Evaluar si conviene una vista por usuario.
 - [ ] Verificación visual del frontend con dev server controlable (Next 16 bloquea
   un segundo `next dev` sobre el mismo directorio).
+- [x] `venv_linux` creado (lo pedía `CLAUDE.md`) y añadido al `.gitignore`; los
+  tests del backend se corren con `./venv_linux/bin/python -m pytest`.
+- [ ] La tarjeta de jugador no se pudo verificar contra la base real desde el
+  entorno remoto (no hay `SUPABASE_SECRET_KEY` local y las tablas `scouting_*`
+  tienen RLS). Se validó la consulta equivalente en SQL (69 goles de Messi con
+  fecha y rival) y el armado del perfil con un cliente falso en los tests;
+  falta abrir `/jugadores/<id>` en producción para confirmarlo de punta a punta.
 </content>
 </invoke>
 
