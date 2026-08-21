@@ -127,12 +127,14 @@ redondeadas y etiquetas de sección en mayúsculas monoespaciadas). Los tokens v
 | `/cuenta` | Perfil + KPIs del usuario + últimas predicciones | Supabase Auth + `/predictions/mine` |
 | `/ligas` | Ligas cubiertas + conteo de próximos partidos | `/leagues` + `/upcoming` |
 | `/partidos` | Fixtures con filtros por fecha | `/upcoming` |
+| `/equipos` | Ranking de selecciones por Elo + buscador de clubes y selecciones | `/teams/rankings`, `/teams/directory` |
+| `/equipos/[id]` | **Ficha de equipo**: histórico completo, forma, local/visitante, por competición, promedios por partido, goleadores y bloque de modelo (Elo + ataque/defensa Dixon-Coles) | `/teams/{id}` |
 | `/jugadores` | Ranking de goleadores + buscador | `/players/top`, `/players/search` |
 | `/jugadores/[id]` | **Tarjeta de jugador**: ficha (edad, posición, club), goles por competición, rendimiento por partido, últimos goles y trayectoria de clubes | `/players/{id}` |
 | `/track-record` | Precisión verificable en vivo (ítem "Estadísticas") | `/predictions/stats` + `/predictions/market-stats` |
 
-`/equipos`, `/comunidad` y `/predicciones` son placeholders ("próximamente"): exponer
-posiciones/forma de equipos y un feed social requiere endpoints de backend que aún no existen.
+`/comunidad` y `/predicciones` siguen siendo placeholders ("próximamente"): un feed
+social completo requiere features que aún no existen.
 
 **Mensaje honesto:** a diferencia del prototipo (datos ficticios, precisión 71.4%), la app
 muestra las cifras reales del backend (p. ej. acierto 1X2 ~33.7% en vivo) y presenta el EV
@@ -384,6 +386,9 @@ La documentación interactiva completa (Swagger UI) está en `/docs`.
 | `GET` | `/teams/search?q={nombre}` | Busca equipos por nombre (índice local) |
 | `GET` | `/players/top?limit={n}` | **Público** — máximos goleadores (goles internacionales de carrera) desde la base propia `scouting_players` |
 | `GET` | `/players/search?q={nombre}` | **Público** — busca jugadores por nombre en la base propia |
+| `GET` | `/teams/rankings?limit={n}` | **Público** — ranking de selecciones por Elo (artefacto `national_form.json`) |
+| `GET` | `/teams/directory?q={nombre}` | **Público** — busca en el catálogo de `scouting_teams` (clubes y selecciones). Distinto de `/teams/search`, que resuelve ids de football-data para el predictor |
+| `GET` | `/teams/{team_id}` | **Público** — ficha del equipo: récord histórico, splits local/visitante, por competición, promedios de stats, goleadores y, en selecciones, Elo + fuerza Dixon-Coles. 404 si no existe |
 | `GET` | `/players/{player_id}` | **Público** — tarjeta completa de un jugador: ficha Wikidata, goles internacionales con fecha/rival/minuto, reparto por competición y stats por partido (StatsBomb). 404 si no existe |
 
 ### Predicciones
@@ -816,6 +821,7 @@ sports-predictor/
 │   ├── weather_api.py     # Cliente Open-Meteo (geocodificación + pronóstico)
 │   ├── supabase_client.py # CRUD de predicciones + estadísticas + auth
 │   ├── players_db.py      # Base de jugadores: goleadores, búsqueda y tarjeta (get_player_profile)
+│   ├── teams_db.py       # Base de equipos: catálogo, ranking Elo y ficha (get_team_profile)
 │   ├── tests/             # Pytest (test_odds_api.py, test_players.py, …)
 │   ├── result_checker.py  # Busca y guarda resultados reales cada hora
 │   ├── mock_data.py       # Datos de fallback cuando las APIs fallan

@@ -399,6 +399,93 @@ export async function fetchPlayerProfile(id: number): Promise<PlayerProfile> {
   return data;
 }
 
+/* ── Equipos (base propia de scouting) ────────────────────────────────────── */
+
+export interface ScoutingTeam {
+  id: number;
+  name: string;
+  type: "national" | "club";
+  country: string | null;
+}
+
+export interface TeamRanking {
+  id: number | null;
+  name: string;
+  elo: number;
+  pts_per_game: number | null;
+  wins_last5: number | null;
+  draws_last5: number | null;
+  losses_last5: number | null;
+}
+
+export interface TeamRecord {
+  played?: number;
+  wins?: number;
+  draws?: number;
+  losses?: number;
+  goals_for?: number;
+  goals_against?: number;
+  goals_avg?: number;
+  conceded_avg?: number;
+  win_pct?: number;
+  pts_per_game?: number;
+}
+
+export interface TeamMatchView {
+  date: string | null;
+  tournament: string | null;
+  category: string;
+  opponent: string | null;
+  was_home: boolean;
+  neutral: boolean;
+  goals_for: number;
+  goals_against: number;
+  result: "V" | "E" | "D";
+}
+
+export interface TeamProfile {
+  team: ScoutingTeam;
+  record: TeamRecord;
+  splits: { home: TeamRecord; away: TeamRecord; neutral: TeamRecord };
+  by_category: (TeamRecord & { category: string })[];
+  form: ("V" | "E" | "D")[];
+  recent_matches: TeamMatchView[];
+  stats: {
+    matches?: number;
+    avg?: Record<string, { value: number; n: number }>;
+  };
+  top_scorers: { name: string; goals: number; penalties: number }[];
+  model: {
+    elo: number | null;
+    pts_per_game: number | null;
+    strength: {
+      attack: number;
+      defense: number;
+      attack_pctile: number;
+      defense_pctile: number;
+      teams_in_model: number;
+    } | null;
+  } | null;
+}
+
+/** Ranking de selecciones por Elo (modelo propio). */
+export async function fetchTeamRankings(limit = 25): Promise<TeamRanking[]> {
+  const { data } = await api.get(`/teams/rankings?limit=${limit}`);
+  return data.teams ?? [];
+}
+
+/** Busca equipos en el catálogo de la base propia (clubes y selecciones). */
+export async function searchScoutingTeams(q: string): Promise<ScoutingTeam[]> {
+  const { data } = await api.get(`/teams/directory?q=${encodeURIComponent(q)}`);
+  return data.teams ?? [];
+}
+
+/** Ficha histórica de un equipo (récord, forma, stats, goleadores y modelo). */
+export async function fetchTeamProfile(id: number): Promise<TeamProfile> {
+  const { data } = await api.get(`/teams/${id}`);
+  return data;
+}
+
 export async function fetchPrediction(match: Match, league: string, token?: string | null): Promise<Prediction> {
   const { data } = await api.post(
     "/predict",

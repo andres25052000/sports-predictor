@@ -197,7 +197,9 @@ def _goal_timeline(sb, name: str) -> list[dict]:
     for e in events:
         m = matches.get(e.get("match_id")) or {}
         detail = e.get("detail") or {}
-        team = detail.get("team")
+        # Reason: el ingest de goleadores guarda el equipo del goleador como
+        # `scoring_team` (ver ml/ingest_goalscorers.py), no como `team`.
+        team = detail.get("scoring_team") or detail.get("team")
         # El rival es el otro equipo del partido; si no sabemos el equipo del
         # goleador, mostramos el enfrentamiento completo.
         home, away = m.get("home_team"), m.get("away_team")

@@ -9,6 +9,7 @@ import api_sports as asports
 import weather_api as wapi
 import supabase_client as sbc
 import players_db
+import teams_db
 import odds_api
 import nba_predictor
 import ensemble
@@ -188,6 +189,23 @@ def get_player(player_id: int):
     return profile
 
 
+@app.get("/teams/rankings")
+def get_team_rankings(limit: int = 25):
+    """Ranking de selecciones por Elo (modelo propio, artefacto national_form)."""
+    return {"teams": teams_db.get_team_rankings(limit)}
+
+
+@app.get("/teams/directory")
+def search_scouting_teams(q: str = ""):
+    """Busca equipos en el catálogo de la base propia (clubes y selecciones).
+
+    Distinto de `/teams/search`, que resuelve ids de football-data para el
+    predictor: este devuelve ids de `scouting_teams` para abrir su ficha.
+    """
+    return {"teams": teams_db.search_teams(q)}
+
+
+
 @app.get("/leagues/{league}/matches")
 def get_matches(league: str):
     real_matches = fapi.get_matches(league)
@@ -280,6 +298,18 @@ def search_teams(q: str = ""):
         return {"teams": []}
     results = fapi.search_teams(q.strip())
     return {"teams": results}
+
+
+# Va después de /teams/search y /teams/directory: FastAPI evalúa las rutas en
+# orden y una ruta dinámica declarada antes captura esos paths (y responde 422
+# al no poder convertir "search" a int).
+@app.get("/teams/{team_id}")
+def get_team(team_id: int):
+    """Ficha de un equipo: histórico, forma, stats promedio, goleadores y modelo."""
+    profile = teams_db.get_team_profile(team_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Equipo no encontrado")
+    return profile
 
 
 @app.post("/predict")

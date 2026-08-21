@@ -294,6 +294,15 @@ Desplegado a producción (commit `cdb2b79`).
   (Cristiano 124, Kane 75, Messi 71…, acentos UTF-8 OK).
 
 ### Descubierto durante el trabajo
+- **Bug corregido en la tarjeta de jugador**: `ml/ingest_goalscorers.py` guarda el
+  equipo del goleador como `detail->>scoring_team`, no `team`, asi que el rival de
+  cada gol salia vacio. Corregido en `players_db.py` (con fallback a `team`).
+- **Colision de rutas en FastAPI**: `/teams/{team_id}` declarada antes que
+  `/teams/search` capturaba ese path y devolvia 422 (no hay fallback tras un fallo
+  de validacion), rompiendo el buscador del formulario de partido manual. La ruta
+  dinamica va al final; hay un test de regresion (`test_teams.py`).
+- El buscador nuevo de equipos vive en `/teams/directory` para no pisar el
+  `/teams/search` existente, que resuelve ids de football-data para el predictor.
 - El "mojibake" en nombres de jugadores era un artefacto de la consola de Windows
   (`json.tool` / cp1252), **no de los datos**: la base está bien codificada. No hizo
   falta `ftfy`.
@@ -302,7 +311,12 @@ Desplegado a producción (commit `cdb2b79`).
   `frontend/`.
 
 ### Pendientes de este rediseño
-- [ ] **Equipos**: página real requiere endpoint de posiciones/forma (no existe).
+- [x] **Equipos** (2026-08-21): `teams_db.py` + `/teams/rankings`, `/teams/directory`
+  y `/teams/{id}`; paginas `/equipos` (ranking de selecciones por Elo + buscador de
+  los 970 equipos) y `/equipos/[id]` (ficha: record historico completo, forma,
+  splits local/visitante/neutral, desglose por competicion, promedios de stats
+  detalladas con el n de cada metrica, maximos goleadores y — en selecciones —
+  Elo + fuerza de ataque/defensa Dixon-Coles en percentiles). 13 tests nuevos.
 - [ ] **Comunidad**: feature social completa (posts, seguir) desde cero.
 - [ ] `current_club` (Wikidata) tiene errores (p. ej. Lewandowski→"Chicago Fire");
   por eso las tarjetas de jugador muestran la selección, no el club.

@@ -171,7 +171,7 @@ def test_perfil_completo_cruza_ficha_goles_y_stats(monkeypatch):
         }],
         "scouting_match_events": [{
             "match_id": 964, "minute": 23, "event_type": "goal",
-            "detail": {"scorer": "Lionel Messi", "team": "Argentina"},
+            "detail": {"scorer": "Lionel Messi", "scoring_team": "Argentina"},
         }],
         "scouting_matches": [{
             "id": 964, "match_date": "2022-12-18", "tournament": "FIFA World Cup",
